@@ -12,8 +12,8 @@
 using namespace std;
 
 //Screen dimension constants
-static const int s_screen_width = 640;
-static const int s_screen_height = 480;
+static int s_screen_width = 640;
+static int s_screen_height = 480;
 
 SDL_Window* s_window;
 SDL_GLContext s_context;
@@ -118,6 +118,18 @@ static bool _init(void)
     return true;
 }
 
+static void _gl_set_viewport(void)
+{
+    glViewport(0, 0, s_screen_width, s_screen_height);
+}
+
+static void _update_window_size(int32_t width, int32_t height)
+{
+    s_screen_width = width;
+    s_screen_height = height;
+    _gl_set_viewport();
+}
+
 int main(int argc, char** argv)
 {
     if (!_init()) {
@@ -133,11 +145,18 @@ int main(int argc, char** argv)
     glClear(GL_COLOR_BUFFER_BIT);
 
     bool quit = false;
+    int i = 0;
     while (!quit) {
         SDL_Event e;
         while (SDL_PollEvent(&e) != 0) {
             if (e.type == SDL_QUIT) {
                 quit = true;
+            }
+
+            if (e.type == SDL_WINDOWEVENT) {
+                if (e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+                    _update_window_size(e.window.data1, e.window.data2);
+                }
             }
         }
 
