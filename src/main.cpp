@@ -1,4 +1,5 @@
 // External Headers
+#include <glad/glad.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 
@@ -30,13 +31,21 @@ static bool _sdl_init(void)
 
 static void _sdl_cleanup()
 {
-    SDL_DestroyWindow(s_window);
+    if (s_window != nullptr) {
+        SDL_DestroyWindow(s_window);
+        s_window = nullptr;
+    }
+
+    if (s_context != nullptr) {
+        SDL_GL_DeleteContext(s_context);
+        s_context = nullptr;
+    }
 
     //Quit SDL subsystems
     SDL_Quit();
 }
 
-static bool _sdl_opengl_init(void)
+static bool _sdl_create_main_window(void)
 {
     if (SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3) != 0) {
         printf("Error setting SDL_GL_CONTEXT_MAJOR_VERSION\n");
@@ -53,11 +62,6 @@ static bool _sdl_opengl_init(void)
         return false;
     }
 
-    return true;
-}
-
-static bool _sdl_create_main_window(void)
-{
     // Create main window
     s_window = SDL_CreateWindow("OpenGL Tutorial",
                                 SDL_WINDOWPOS_UNDEFINED,
@@ -65,7 +69,7 @@ static bool _sdl_create_main_window(void)
                                 s_screen_width,
                                 s_screen_height,
                                 SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
-    if (s_window == NULL) {
+    if (s_window == nullptr) {
         printf("Error creating OpenGL window: %s.\n", SDL_GetError());
         return false;
     }
@@ -76,18 +80,18 @@ static bool _sdl_create_main_window(void)
 static bool _sdl_create_opengl_context(void)
 {
     s_context = SDL_GL_CreateContext(s_window);
-    if (s_context == NULL) {
+    if (s_context == nullptr) {
         printf("Error creating OpenGL context: %s\n", SDL_GetError());
         return false;
     }
 
-    return true;
-}
-
-static bool _sdl_set_swap_interval(void)
-{
     if (SDL_GL_SetSwapInterval(1) < 0) {
         printf("Setting swap intervale not supported.\n");
+        return false;
+    }
+
+    if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
+        printf("Failed to initialize GLAD\n");
         return false;
     }
 
@@ -97,27 +101,17 @@ static bool _sdl_set_swap_interval(void)
 static bool _init(void)
 {
     if (!_sdl_init()) {
-        printf("Init failed.\n");
-        return false;
-    }
-
-    if (!_sdl_opengl_init()) {
-        printf("OpenGL init failed.\n");
+        printf("SDL init failed.\n");
         return false;
     }
 
     if (!_sdl_create_main_window()) {
-        printf("Window creation failed.\n");
+        printf("SDL window creation failed.\n");
         return false;
     }
 
     if (!_sdl_create_opengl_context()) {
         printf("OpenGL context creation failed.\n");
-        return false;
-    }
-
-    if (!_sdl_set_swap_interval()) {
-        printf("VSync init failed.\n");
         return false;
     }
 
