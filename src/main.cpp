@@ -125,6 +125,13 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    // Initial viewport call (should be tied to SDL window resize callback)
+    glViewport(0, 0, s_screen_width, s_screen_height);
+
+    // Set background color
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
     bool quit = false;
     while (!quit) {
         SDL_Event e;
