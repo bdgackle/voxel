@@ -130,6 +130,55 @@ static void _update_window_size(int32_t width, int32_t height)
     _gl_set_viewport();
 }
 
+static const char* const vertex_shader_source = "\
+#version 330 core\n\
+layout (location = 0) in vec3 aPos;\n\
+\
+void main()\n\
+{\n\
+    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n\
+}\n\
+";
+
+static void _create_vertex_shader(void)
+{
+    // Create vertex shader
+    unsigned int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex_shader, 1, &vertex_shader_source, NULL);
+    glCompileShader(vertex_shader);
+
+    // Get compilation results
+    int success;
+    char info_log[512];
+    glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
+
+    if (success == 0) {
+        glGetShaderInfoLog(vertex_shader, 512, NULL, info_log);
+        printf("SHADER COMPILE FAILED:\n%s\n", info_log);
+    }
+}
+
+static void _create_vbo(void)
+{
+    // Define vertices of a single flat triangle
+    float vertices[] = {
+        -0.5f, -0.5f, 0.0f,
+         0.5f, -0.5f, 0.0f,
+         0.0f,  0.5f, 0.0f
+    };
+
+    // Create vertex buffer object
+    unsigned int vbo;
+    glGenBuffers(1, &vbo);
+
+    // Bind the newly created VBO
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+    // Send vertex data to newly bound VBO
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // GL_DYNAMIC_DRAW -- performance?
+                                                                               // GL_STREAM_DRAW -- performance?
+}
+
 int main(int argc, char** argv)
 {
     if (!_init()) {
@@ -144,8 +193,10 @@ int main(int argc, char** argv)
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    _create_vertex_shader();
+    _create_vbo();
+
     bool quit = false;
-    int i = 0;
     while (!quit) {
         SDL_Event e;
         while (SDL_PollEvent(&e) != 0) {
