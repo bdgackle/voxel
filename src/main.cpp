@@ -198,28 +198,35 @@ static unsigned int _create_shader_program(void)
     glDeleteShader(fragment_shader);
 
     return shader_program;
-
 }
+
+static float s_vertices[] = {
+     0.5f,  0.5f, 0.0f,
+     0.5f, -0.5f, 0.0f,
+    -0.5f, -0.5f, 0.0f,
+    -0.5f,  0.5f, 0.0f,
+};
+
+static unsigned int s_indices[] = {
+    0, 1, 3,
+    1, 2, 3
+};
 
 static unsigned int _create_vao(void)
 {
-    // Define vertices of a single flat triangle
-    float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-         0.5f, -0.5f, 0.0f,
-         0.0f,  0.5f, 0.0f
-    };
-
-    // Create VAO
     unsigned int vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
-    // Create a VBO, bind it, and copy data to it
     unsigned int vbo;
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // GL_DYNAMIC_DRAW -- performance?
+    glBufferData(GL_ARRAY_BUFFER, sizeof(s_vertices), s_vertices, GL_STATIC_DRAW);
+
+    unsigned int ebo;
+    glGenBuffers(1, &ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(s_indices), s_indices, GL_STATIC_DRAW);
 
     // Setup vertex attributes
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -243,11 +250,13 @@ int main(int argc, char** argv)
     glClear(GL_COLOR_BUFFER_BIT);
 
     unsigned int program = _create_shader_program();
+
     unsigned int vao = _create_vao();
 
     glUseProgram(program);
     glBindVertexArray(vao);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
 
     bool quit = false;
     while (!quit) {
