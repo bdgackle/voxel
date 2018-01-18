@@ -140,25 +140,68 @@ void main()\n\
 }\n\
 ";
 
-static void _create_vertex_shader(void)
-{
-    // Create vertex shader
-    unsigned int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex_shader, 1, &vertex_shader_source, NULL);
-    glCompileShader(vertex_shader);
+static const char* const fragment_shader_source = "\
+#version 330 core\n\
+out vec4 FragColor;\n\
+\n\
+void main()\n\
+{\n\
+    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n\
+}\n\
+";
 
-    // Get compilation results
+static void _print_shader_compilation_result(unsigned int shader_id)
+{
     int success;
     char info_log[512];
-    glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
+    glGetShaderiv(shader_id, GL_COMPILE_STATUS, &success);
+
+    printf("Compile shader %u: %s\n", shader_id, success == 0 ? "Fail" : "Okay");
 
     if (success == 0) {
-        glGetShaderInfoLog(vertex_shader, 512, NULL, info_log);
+        glGetShaderInfoLog(shader_id, 512, NULL, info_log);
         printf("SHADER COMPILE FAILED:\n%s\n", info_log);
     }
 }
 
-static void _create_vbo(void)
+static unsigned int _create_vertex_shader(void)
+{
+    unsigned int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex_shader, 1, &vertex_shader_source, NULL);
+    glCompileShader(vertex_shader);
+    _print_shader_compilation_result(vertex_shader);
+
+    return vertex_shader;
+}
+
+static unsigned int _create_fragment_shader(void)
+{
+    unsigned int fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment_shader, 1, &fragment_shader_source, NULL);
+    glCompileShader(fragment_shader);
+    _print_shader_compilation_result(fragment_shader);
+
+    return fragment_shader;
+}
+
+static unsigned int _create_shader_program(void)
+{
+    unsigned int vertex_shader = _create_vertex_shader();
+    unsigned int fragment_shader = _create_fragment_shader();
+    unsigned int shader_program = glCreateProgram();
+
+    glAttachShader(shader_program, vertex_shader);
+    glAttachShader(shader_program, fragment_shader);
+    glLinkProgram(shader_program);
+
+    glDeleteShader(vertex_shader);
+    glDeleteShader(fragment_shader);
+
+    return shader_program;
+
+}
+
+static unsigned int _create_vao(void)
 {
     // Define vertices of a single flat triangle
     float vertices[] = {
@@ -167,16 +210,22 @@ static void _create_vbo(void)
          0.0f,  0.5f, 0.0f
     };
 
-    // Create vertex buffer object
+    // Create VAO
+    unsigned int vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+    // Create a VBO, bind it, and copy data to it
     unsigned int vbo;
     glGenBuffers(1, &vbo);
-
-    // Bind the newly created VBO
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-    // Send vertex data to newly bound VBO
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // GL_DYNAMIC_DRAW -- performance?
-                                                                               // GL_STREAM_DRAW -- performance?
+
+    // Setup vertex attributes
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    return vao;
 }
 
 int main(int argc, char** argv)
@@ -193,8 +242,12 @@ int main(int argc, char** argv)
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    _create_vertex_shader();
-    _create_vbo();
+    unsigned int program = _create_shader_program();
+    unsigned int vao = _create_vao();
+
+    glUseProgram(program);
+    glBindVertexArray(vao);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 
     bool quit = false;
     while (!quit) {
