@@ -253,6 +253,8 @@ int main(int argc, char** argv)
 
     unsigned int vao = _create_vao();
 
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
     glUseProgram(program);
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
