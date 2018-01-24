@@ -7,45 +7,49 @@
 // C Standard Headers
 #include <cstdint>
 
-class sdl_sdk {
-    friend class sdl_wrapper;
+namespace sdl_wrapper {
+
+class sdk {
+    friend class wrapper;
 
  private:
-    sdl_sdk();
-    ~sdl_sdk();
+    sdk();
+    ~sdk();
 };
 
-class sdl_window {
-    friend class sdl_opengl_context;
-    friend class sdl_wrapper;
+class window {
+    friend class opengl_context;
+    friend class wrapper;
 
  private:
-    sdl_window();
-    ~sdl_window();
+    window();
+    ~window();
 
     SDL_Window* m_window;
 };
 
-class sdl_opengl_context {
-    friend class sdl_wrapper;
+class opengl_context {
+    friend class wrapper;
 
  private:
-    sdl_opengl_context();
-    ~sdl_opengl_context();
+    opengl_context();
+    ~opengl_context();
 
-    sdl_window m_gl_window;
+    window m_gl_window;
     SDL_GLContext m_context;
 };
 
-class sdl_wrapper {
+class wrapper {
  public:
-    sdl_wrapper();
+    wrapper();
 
-    SDL_Window* sdl_window();
+    SDL_Window* window();
 
  private:
-    sdl_sdk m_sdk;
-    sdl_opengl_context m_context;
+    sdk m_sdk;
+    opengl_context m_context;
 };
+
+} // namespace sdl_wrapper
 
 #endif // SDL_WRAPPER_HPP

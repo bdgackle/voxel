@@ -124,8 +124,8 @@ static unsigned int _create_vao(void)
 
 int main(int argc, char** argv)
 {
-    sdl_wrapper wrapper;
-    SDL_Window* window = wrapper.sdl_window();
+    sdl_wrapper::wrapper sdk;
+    SDL_Window* window = sdk.window();
 
     // Initial viewport call (should be tied to SDL window resize callback)
     glViewport(0, 0, s_screen_width, s_screen_height);
