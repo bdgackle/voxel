@@ -9,6 +9,7 @@ src_dir := $(top)/src
 
 obj_files := $(out_dir)/main.o
 obj_files += $(out_dir)/glad.o
+obj_files += $(out_dir)/gl_wrapper.o
 obj_files += $(out_dir)/sdl_wrapper.o
 
 CC = gcc
