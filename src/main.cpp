@@ -1,4 +1,5 @@
 // Local Headers
+#include "gl_wrapper.hpp"
 #include "sdl_wrapper.hpp"
 
 // External Headers
@@ -36,56 +37,6 @@ void main()\n\
     FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n\
 }\n\
 ";
-
-static void _print_shader_compilation_result(unsigned int shader_id)
-{
-    int success;
-    char info_log[512];
-    glGetShaderiv(shader_id, GL_COMPILE_STATUS, &success);
-
-    printf("Compile shader %u: %s\n", shader_id, success == 0 ? "Fail" : "Okay");
-
-    if (success == 0) {
-        glGetShaderInfoLog(shader_id, 512, NULL, info_log);
-        printf("SHADER COMPILE FAILED:\n%s\n", info_log);
-    }
-}
-
-static unsigned int _create_vertex_shader(void)
-{
-    unsigned int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex_shader, 1, &vertex_shader_source, NULL);
-    glCompileShader(vertex_shader);
-    _print_shader_compilation_result(vertex_shader);
-
-    return vertex_shader;
-}
-
-static unsigned int _create_fragment_shader(void)
-{
-    unsigned int fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment_shader, 1, &fragment_shader_source, NULL);
-    glCompileShader(fragment_shader);
-    _print_shader_compilation_result(fragment_shader);
-
-    return fragment_shader;
-}
-
-static unsigned int _create_shader_program(void)
-{
-    unsigned int vertex_shader = _create_vertex_shader();
-    unsigned int fragment_shader = _create_fragment_shader();
-    unsigned int shader_program = glCreateProgram();
-
-    glAttachShader(shader_program, vertex_shader);
-    glAttachShader(shader_program, fragment_shader);
-    glLinkProgram(shader_program);
-
-    glDeleteShader(vertex_shader);
-    glDeleteShader(fragment_shader);
-
-    return shader_program;
-}
 
 static float s_vertices[] = {
      0.5f,  0.5f, 0.0f,
@@ -134,12 +85,12 @@ int main(int argc, char** argv)
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    unsigned int program = _create_shader_program();
+    gl_wrapper::shader_program program("vertex.glsl", "fragment.glsl");
     unsigned int vao = _create_vao();
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    glUseProgram(program);
+    glUseProgram(program.handle());
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
