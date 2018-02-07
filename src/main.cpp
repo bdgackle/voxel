@@ -70,8 +70,6 @@ int main(int argc, char** argv)
     gl_wrapper::shader_program program("vertex.glsl", "fragment.glsl");
     unsigned int vao = _create_vao();
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
     bool quit = false;
     while (!quit) {
         SDL_Event e;
