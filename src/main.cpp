@@ -7,7 +7,9 @@
 #include <SDL2/SDL.h>
 
 // C Standard Headers
-#include <stdio.h>
+#include <cmath>
+#include <cstdint>
+#include <cstdio>
 
 // CPP Standard Headers
 #include <string>
@@ -70,11 +72,6 @@ int main(int argc, char** argv)
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    glUseProgram(program.handle());
-    glBindVertexArray(vao);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
-
     bool quit = false;
     while (!quit) {
         SDL_Event e;
@@ -90,6 +87,18 @@ int main(int argc, char** argv)
             }
         }
 
+        // Time varying sinusoid @ 1Hz, value 0 to 1;
+        uint32_t ticks = SDL_GetTicks();
+        float seconds = (float)ticks / 1000;
+        float green_value = (sin(seconds) / 2.0f) + 0.5f;
+
+        int color_location = glGetUniformLocation(program.handle(), "color");
+        glUseProgram(program.handle());
+        glUniform4f(color_location, 0.0f, green_value, 0.0f, 1.0f);
+
+        glBindVertexArray(vao);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
         SDL_GL_SwapWindow(window);
     }
 
