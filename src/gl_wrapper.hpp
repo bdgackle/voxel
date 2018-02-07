@@ -17,6 +17,8 @@ class shader {
     ~shader();
 
     void compile(std::string filename);
+    bool compile_success();
+    void print_compile_msg();
 
     GLuint m_handle;
 };
@@ -38,6 +40,7 @@ class shader_program {
     shader_program(std::string vertex_filename, std::string fragment_filename);
 
     GLuint handle();
+
 
  private:
     program m_program;

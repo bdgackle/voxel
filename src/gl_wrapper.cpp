@@ -85,11 +85,33 @@ void shader::compile(string filename)
     glShaderSource(m_handle, 1, &source_str, NULL);
     glCompileShader(m_handle);
 
+    if (!compile_success()) {
+        print_compile_msg();
+        throw compile_ex;
+    }
+}
+
+bool shader::compile_success()
+{
+    assert(m_handle != 0);
+
     int status;
     glGetShaderiv(m_handle, GL_COMPILE_STATUS, &status);
     if (status == 0) {
-        throw compile_ex;
+        return false;
     }
+
+    return true;
+}
+
+void shader::print_compile_msg()
+{
+    assert(m_handle != 0);
+
+    char msg_buf[512];
+
+    glGetProgramInfoLog(m_handle, 512, NULL, msg_buf);
+    printf("%s\n", msg_buf);
 }
 
 program::program()
