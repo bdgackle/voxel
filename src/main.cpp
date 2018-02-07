@@ -21,15 +21,9 @@ static int s_screen_width = 640;
 static int s_screen_height = 480;
 
 static float s_vertices[] = {
-     0.5f,  0.5f, 0.0f,
-     0.5f, -0.5f, 0.0f,
-    -0.5f, -0.5f, 0.0f,
-    -0.5f,  0.5f, 0.0f,
-};
-
-static unsigned int s_indices[] = {
-    0, 1, 3,
-    1, 2, 3
+     0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+    -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+     0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f
 };
 
 static unsigned int _create_vao(void)
@@ -43,14 +37,13 @@ static unsigned int _create_vao(void)
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(s_vertices), s_vertices, GL_STATIC_DRAW);
 
-    unsigned int ebo;
-    glGenBuffers(1, &ebo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(s_indices), s_indices, GL_STATIC_DRAW);
-
-    // Setup vertex attributes
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    // Setup vertex attributes (position and color)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
 
     return vao;
 }
@@ -62,10 +55,6 @@ int main(int argc, char** argv)
 
     // Initial viewport call (should be tied to SDL window resize callback)
     glViewport(0, 0, s_screen_width, s_screen_height);
-
-    // Set background color
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
 
     gl_wrapper::shader_program program("vertex.glsl", "fragment.glsl");
     unsigned int vao = _create_vao();
@@ -86,6 +75,7 @@ int main(int argc, char** argv)
         }
 
         // Time varying sinusoid @ 1Hz, value 0 to 1;
+/*
         uint32_t ticks = SDL_GetTicks();
         float seconds = (float)ticks / 1000;
         float green_value = (sin(seconds) / 2.0f) + 0.5f;
@@ -93,10 +83,16 @@ int main(int argc, char** argv)
         int color_location = glGetUniformLocation(program.handle(), "color");
         glUseProgram(program.handle());
         glUniform4f(color_location, 0.0f, green_value, 0.0f, 1.0f);
+*/
+
+        glUseProgram(program.handle());
+
+        // Set background color
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
 
         glBindVertexArray(vao);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
         SDL_GL_SwapWindow(window);
     }
 
