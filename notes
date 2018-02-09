@@ -1,0 +1,47 @@
+Open GL:
+
+Prerequisites to get open gl running:
+1) Need OpenGL function bindings from GLEW, GLAD, or whatever
+2) Need a rendering context (from SDL, GLFW... whatever)
+3) Call to glViewport() -- still hazy on what this is doing
+
+Once we have that, we need to setup:
+1) A vertex shader and fragment shader
+    glCreateShader();
+    glShaderSource()
+    glCompileShader()
+
+2) A linked shader program
+    glCreateProgram
+    glAttachShader() // vertex
+    glAttachShader() // fragment
+    glLinkProgram() // link
+    glUseProgram() // Set to zero to turn off; handle to turn on
+
+3) A VAO
+    glGetVertexArrays()
+    glBindVertexArray()
+
+4) A VBO
+    glGenBuffers()
+    glBindBuffer()
+    glBufferData()
+
+5) Attributes
+    glEnableVertexAttribArray()
+    glVertexAttribPointer()
+
+6) Unbind all the things
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+7) Clear, bind, draw, unbind
+    glClearColor()
+    glClear()
+    glUseProgram()
+    glBindVertexArray()
+    glDrawArrays()
+    glBindVertexArray(0)
+    glUseProgram(0)
+
+8) Swap buffers (depends on context provider)
