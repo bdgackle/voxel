@@ -94,6 +94,9 @@ class shader_program {
  public:
     shader_program(std::string vertex_filename, std::string fragment_filename);
     void use();
+    GLuint handle();
+    void set_uniform(std::string name, int value);
+    void set_uniformf(std::string name, float value);
 
  private:
     program m_program;
@@ -127,7 +130,7 @@ class image {
  */
 class texture {
  public:
-    texture(std::string image_filename);
+    texture(std::string image_filename, bool has_alpha);
     ~texture() = default;
 
     void bind();

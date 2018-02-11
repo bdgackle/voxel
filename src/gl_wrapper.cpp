@@ -249,6 +249,23 @@ void shader_program::use()
     glUseProgram(m_program.handle());
 }
 
+GLuint shader_program::handle()
+{
+    return m_program.m_handle;
+}
+
+void shader_program::set_uniform(string name, int value)
+{
+    int loc = glGetUniformLocation(m_program.handle(), name.c_str());
+    glUniform1i(loc, value);
+}
+
+void shader_program::set_uniformf(string name, float value)
+{
+    int loc = glGetUniformLocation(m_program.handle(), name.c_str());
+    glUniform1f(loc, value);
+}
+
 image::image(string image_filename)
 {
     m_image_data = stbi_load(image_filename.c_str(),
@@ -287,7 +304,7 @@ int image::channels() const
     return m_channels;
 }
 
-texture::texture(string image_filename) :
+texture::texture(string image_filename, bool has_alpha) :
     m_image(image_filename)
 {
     glGenTextures(1, &m_handle);
@@ -301,7 +318,9 @@ texture::texture(string image_filename) :
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
                  m_image.width(),
                  m_image.height(),
-                 0, GL_RGB, GL_UNSIGNED_BYTE,
+                 0,
+                 has_alpha ? GL_RGBA : GL_RGB,
+                 GL_UNSIGNED_BYTE,
                  m_image.data());
     glGenerateMipmap(GL_TEXTURE_2D);
 }

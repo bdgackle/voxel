@@ -2,12 +2,16 @@
 
 out vec4 frag_color;
 
-in vec3 out_color;
-in vec2 out_tex_coord;
+in vec3 vert_color;
+in vec2 vert_tex_coord;
 
-uniform sampler2D out_texture;
+uniform sampler2D texture0;
+uniform sampler2D texture1;
+uniform float trans;
 
 void main()
 {
-    frag_color = texture(out_texture, out_tex_coord) * vec4(out_color, 1.0);
+    frag_color = mix(texture(texture0, vert_tex_coord),
+                     texture(texture1, vert_tex_coord),
+                     trans);
 }

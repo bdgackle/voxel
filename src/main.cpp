@@ -69,7 +69,13 @@ int main(int argc, char** argv)
 
     gl_wrapper::shader_program program("vertex.glsl", "fragment.glsl");
 
-    gl_wrapper::texture texture0("container.jpg");
+    gl_wrapper::texture texture0("container.jpg", false);
+    gl_wrapper::texture texture1("awesomeface.png", true);
+
+    program.use();
+    program.set_uniform("texture0", 0);
+    program.set_uniform("texture1", 1);
+    program.set_uniformf("trans", (float)0.2);
 
     bool quit = false;
     while (!quit) {
@@ -91,6 +97,9 @@ int main(int argc, char** argv)
 
         glActiveTexture(GL_TEXTURE0);
         texture0.bind();
+
+        glActiveTexture(GL_TEXTURE1);
+        texture1.bind();
 
         box_vao.bind();
 
