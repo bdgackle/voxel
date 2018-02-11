@@ -16,6 +16,11 @@
 
 using namespace std;
 
+// TODO: We aren't checking OpenGL's error status in a number of places.
+// We should use the debug facility and then bind a callback to generate
+// exceptions on openGL errors; this will enable more of the construtors
+// to fail when an error is generated.
+
 namespace gl_wrapper {
 
 class gl_buffer_null_exception : public exception {
@@ -82,42 +87,10 @@ void vao::bind()
     glBindVertexArray(m_handle);
 }
 
-void vao::enable_vertex_attrib()
-{
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-                          8 * sizeof(float),
-                          (void*)0);
-    glEnableVertexAttribArray(0);
-}
 
-void vao::enable_color_attrib()
+vbo::vbo()
 {
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-                          8 * sizeof(float),
-                          (void *)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-}
-
-void vao::enable_texture_attrib()
-{
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
-                          8 * sizeof(float),
-                          (void *)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-}
-
-vbo::vbo(float *data, size_t size)
-{
-    if (data == nullptr) {
-        throw buf_null;
-    }
-
     glGenBuffers(1, &m_handle);
-    bind();
-    glBufferData(GL_ARRAY_BUFFER,
-                 static_cast<GLsizeiptr>(size),
-                 static_cast<GLvoid *>(data),
-                 GL_STATIC_DRAW);
 }
 
 vbo::~vbo()
@@ -130,15 +103,19 @@ void vbo::bind()
     glBindBuffer(GL_ARRAY_BUFFER, m_handle);
 }
 
-ebo::ebo(GLvoid *data, GLsizeiptr size)
+void vbo::load(GLvoid *data, GLsizeiptr size)
 {
     if (data == nullptr) {
         throw buf_null;
     }
 
-    glGenBuffers(1, &m_handle);
     bind();
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+}
+
+ebo::ebo()
+{
+    glGenBuffers(1, &m_handle);
 }
 
 ebo::~ebo()
@@ -149,6 +126,16 @@ ebo::~ebo()
 void ebo::bind()
 {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_handle);
+}
+
+void ebo::load(GLvoid * data, GLsizeiptr size)
+{
+    if (data == nullptr) {
+        throw buf_null;
+    }
+
+    bind();
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
 }
 
 shader::shader(GLenum shader_type)

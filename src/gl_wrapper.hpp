@@ -18,9 +18,6 @@ class vao {
     ~vao();
 
     void bind();
-    void enable_vertex_attrib();
-    void enable_color_attrib();
-    void enable_texture_attrib();
 
  private:
     GLuint m_handle;
@@ -31,10 +28,11 @@ class vao {
  */
 class vbo {
  public:
-    vbo(float *data, size_t size);
+    vbo();
     ~vbo();
 
     void bind();
+    void load(GLvoid *data, GLsizeiptr size);
 
  private:
     GLuint m_handle;
@@ -45,10 +43,11 @@ class vbo {
  */
 class ebo {
  public:
-    ebo(GLvoid *data, GLsizeiptr size);
+    ebo();
     ~ebo();
 
     void bind();
+    void load(GLvoid *data, GLsizeiptr size);
 
  private:
     GLuint m_handle;
