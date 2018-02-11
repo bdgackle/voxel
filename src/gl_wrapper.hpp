@@ -10,6 +10,51 @@
 namespace gl_wrapper {
 
 /**
+ *  RAII wrapper class for an OpenGL VAO
+ */
+class vao {
+ public:
+    vao();
+    ~vao();
+
+    void bind();
+    void enable_vertex_attrib();
+    void enable_color_attrib();
+    void enable_texture_attrib();
+
+ private:
+    GLuint m_handle;
+};
+
+/**
+ *  RAII wrapper class for an OpenGL VBO
+ */
+class vbo {
+ public:
+    vbo(float *data, size_t size);
+    ~vbo();
+
+    void bind();
+
+ private:
+    GLuint m_handle;
+};
+
+/**
+ *  RAII wrapper class for an OpenGL EBO
+ */
+class ebo {
+ public:
+    ebo(GLvoid *data, GLsizeiptr size);
+    ~ebo();
+
+    void bind();
+
+ private:
+    GLuint m_handle;
+};
+
+/**
  *  RAII wrapper class for an OpenGL shader object
  */
 class shader {

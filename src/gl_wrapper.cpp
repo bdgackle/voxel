@@ -18,6 +18,13 @@ using namespace std;
 
 namespace gl_wrapper {
 
+class gl_buffer_null_exception : public exception {
+    virtual const char* what() const throw()
+    {
+        return "Null pointer passed to buffer object.";
+    }
+} buf_null;
+
 class gl_shader_type_exception : public exception {
     virtual const char* what() const throw()
     {
@@ -59,6 +66,90 @@ class gl_image_open_exception: public exception {
         return "Error opening shader image file.";
     }
 } image_ex;
+
+vao::vao()
+{
+    glGenVertexArrays(1, &m_handle);
+}
+
+vao::~vao()
+{
+    glDeleteVertexArrays(1, &m_handle);
+}
+
+void vao::bind()
+{
+    glBindVertexArray(m_handle);
+}
+
+void vao::enable_vertex_attrib()
+{
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
+                          8 * sizeof(float),
+                          (void*)0);
+    glEnableVertexAttribArray(0);
+}
+
+void vao::enable_color_attrib()
+{
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
+                          8 * sizeof(float),
+                          (void *)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+}
+
+void vao::enable_texture_attrib()
+{
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
+                          8 * sizeof(float),
+                          (void *)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+}
+
+vbo::vbo(float *data, size_t size)
+{
+    if (data == nullptr) {
+        throw buf_null;
+    }
+
+    glGenBuffers(1, &m_handle);
+    bind();
+    glBufferData(GL_ARRAY_BUFFER,
+                 static_cast<GLsizeiptr>(size),
+                 static_cast<GLvoid *>(data),
+                 GL_STATIC_DRAW);
+}
+
+vbo::~vbo()
+{
+    glDeleteBuffers(1, &m_handle);
+}
+
+void vbo::bind()
+{
+    glBindBuffer(GL_ARRAY_BUFFER, m_handle);
+}
+
+ebo::ebo(GLvoid *data, GLsizeiptr size)
+{
+    if (data == nullptr) {
+        throw buf_null;
+    }
+
+    glGenBuffers(1, &m_handle);
+    bind();
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+}
+
+ebo::~ebo()
+{
+    glDeleteBuffers(1, &m_handle);
+}
+
+void ebo::bind()
+{
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_handle);
+}
 
 shader::shader(GLenum shader_type)
 {

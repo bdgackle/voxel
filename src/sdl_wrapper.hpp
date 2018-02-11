@@ -17,13 +17,13 @@ class sdk {
     ~sdk();
 };
 
-class window {
+class sdl_window {
     friend class opengl_context;
     friend class wrapper;
 
  private:
-    window();
-    ~window();
+    sdl_window(int width, int height);
+    ~sdl_window();
 
     SDL_Window* m_window;
 };
@@ -32,21 +32,20 @@ class opengl_context {
     friend class wrapper;
 
  private:
-    opengl_context();
+    opengl_context(SDL_Window* w);
     ~opengl_context();
 
-    window m_gl_window;
     SDL_GLContext m_context;
 };
 
 class wrapper {
  public:
-    wrapper();
-
+    wrapper(int width, int height);
     SDL_Window* window();
 
  private:
     sdk m_sdk;
+    sdl_window m_window;
     opengl_context m_context;
 };
 
