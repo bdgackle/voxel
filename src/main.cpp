@@ -1,7 +1,6 @@
 // Local Headers
 #include "gl_wrapper.hpp"
 #include "sdl_wrapper.hpp"
-#include "stb_image.h"
 
 // External Headers
 #include <glad/glad.h>
@@ -61,24 +60,6 @@ static unsigned int _create_vao(void)
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    int width, height, nrChannels;
-    unsigned char *data = stbi_load("container.jpg", &width, &height, &nrChannels, 0);
-    // TODO: NULL data indicates load failure
-
-    glGenTextures(1, &tex);
-    glBindTexture(GL_TEXTURE_2D, tex);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    // TODO: RAII wrapper
-    stbi_image_free(data);
-
     return vao;
 }
 
@@ -91,6 +72,8 @@ int main(int argc, char** argv)
     glViewport(0, 0, s_screen_width, s_screen_height);
 
     gl_wrapper::shader_program program("vertex.glsl", "fragment.glsl");
+    gl_wrapper::texture texture1("container.jpg");
+
     unsigned int vao = _create_vao();
 
     bool quit = false;
@@ -108,13 +91,10 @@ int main(int argc, char** argv)
             }
         }
 
-        glUseProgram(program.handle());
+        gl_wrapper::clear_screen();
+        program.use();
+        texture1.bind();
 
-        // Set background color
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        glBindTexture(GL_TEXTURE_2D, tex);
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         SDL_GL_SwapWindow(window);

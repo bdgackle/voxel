@@ -1,5 +1,6 @@
 // Local Headers
 #include "gl_wrapper.hpp"
+#include "stb_image.h"
 
 // C Standard Headers
 #include <cassert>
@@ -51,6 +52,13 @@ class gl_shader_link_exception: public exception {
         return "Error linking shader.";
     }
 } link_ex;
+
+class gl_image_open_exception: public exception {
+    virtual const char* what() const throw()
+    {
+        return "Error opening shader image file.";
+    }
+} image_ex;
 
 shader::shader(GLenum shader_type)
 {
@@ -128,6 +136,11 @@ program::~program()
     glDeleteProgram(m_handle);
 }
 
+GLuint program::handle() const
+{
+    return m_handle;
+}
+
 void program::link(GLuint vertex_shader, GLuint fragment_shader)
 {
     glAttachShader(m_handle, vertex_shader);
@@ -153,9 +166,71 @@ shader_program::shader_program(string vertex_filename, string fragment_filename)
     m_program.link(m_vertex_shader.m_handle, m_fragment_shader.m_handle);
 }
 
-GLuint shader_program::handle()
+void shader_program::use()
 {
-    return m_program.m_handle;
+    glUseProgram(m_program.handle());
+}
+
+image::image(string image_filename)
+{
+    m_image_data = stbi_load(image_filename.c_str(),
+                             &m_width,
+                             &m_height,
+                             &m_channels,
+                             0);
+
+    if (m_image_data == nullptr) {
+        throw image_ex;
+    }
+}
+
+image::~image()
+{
+    stbi_image_free(m_image_data);
+}
+
+unsigned char *image::data()
+{
+    return m_image_data;
+}
+
+int image::width() const
+{
+    return m_width;
+}
+
+int image::height() const
+{
+    return m_height;
+}
+
+int image::channels() const
+{
+    return m_channels;
+}
+
+texture::texture(string image_filename) :
+    m_image(image_filename)
+{
+    glGenTextures(1, &m_handle);
+    bind();
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+                 m_image.width(),
+                 m_image.height(),
+                 0, GL_RGB, GL_UNSIGNED_BYTE,
+                 m_image.data());
+    glGenerateMipmap(GL_TEXTURE_2D);
+}
+
+void texture::bind()
+{
+    glBindTexture(GL_TEXTURE_2D, m_handle);
 }
 
 string read_shader_source(string filename)
@@ -166,6 +241,12 @@ string read_shader_source(string filename)
     auto ss = std::ostringstream{};
     ss << source_file.rdbuf();
     return ss.str();
+}
+
+void clear_screen()
+{
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 }
 
 } // namespace gl_wrapper

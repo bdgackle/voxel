@@ -18,10 +18,9 @@ CPP = g++
 MKDIR = mkdir
 RM = rm
 
-
 CFLAGS := -Wall -g3
 CFLAGS += -Iinclude
-
+CFLAGS += -Wno-unused-but-set-variable # Cleanup warning in stb_image (sigh...)
 LFLAGS := -lSDL2 -ldl
 
 # Rules
