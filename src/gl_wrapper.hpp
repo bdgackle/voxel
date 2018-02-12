@@ -32,7 +32,7 @@ class vbo {
     ~vbo();
 
     void bind();
-    void load(GLvoid *data, GLsizeiptr size);
+    void load(const GLvoid *data, GLsizeiptr size);
 
  private:
     GLuint m_handle;
@@ -47,7 +47,7 @@ class ebo {
     ~ebo();
 
     void bind();
-    void load(GLvoid *data, GLsizeiptr size);
+    void load(const GLvoid *data, GLsizeiptr size);
 
  private:
     GLuint m_handle;
@@ -63,7 +63,7 @@ class shader {
     shader(GLenum shaderType);
     ~shader();
 
-    void compile(std::string filename);
+    void compile(const std::string& filename);
     bool compile_success();
     void print_compile_msg();
 
@@ -92,12 +92,13 @@ class program {
  */
 class shader_program {
  public:
-    shader_program(std::string vertex_filename, std::string fragment_filename);
+    shader_program(const std::string& vertex_filename,
+                   const std::string& fragment_filename);
     void use();
     GLuint handle();
-    void set_uniformi(std::string name, int value);
-    void set_uniformf(std::string name, float value);
-    void set_uniform4fv(std::string name, float *value);
+    void set_uniformi(const std::string& name, int value);
+    void set_uniformf(const std::string& name, float value);
+    void set_uniform4fv(const std::string& name, const float *value);
 
  private:
     program m_program;
@@ -112,7 +113,7 @@ class image {
     friend class texture;
 
  private:
-    image(std::string image_filename);
+    image(const std::string& image_filename);
     ~image();
 
     unsigned char *data();
@@ -131,7 +132,7 @@ class image {
  */
 class texture {
  public:
-    texture(std::string image_filename, bool has_alpha);
+    texture(const std::string& image_filename, bool has_alpha);
     ~texture() = default;
 
     void bind();
@@ -144,7 +145,7 @@ class texture {
 /**
  *  Convenience function: converts a text file to a std::string
  */
-std::string read_shader_source(std::string filename);
+std::string read_shader_source(const std::string& filename);
 
 /**
  *  Convenience function for OpenGL calls to clear screen

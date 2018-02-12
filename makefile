@@ -12,6 +12,7 @@ obj_files += $(out_dir)/glad.o
 obj_files += $(out_dir)/gl_wrapper.o
 obj_files += $(out_dir)/sdl_wrapper.o
 obj_files += $(out_dir)/stb_image.o
+obj_files += $(out_dir)/cube.o
 
 CC = gcc
 CPP = g++

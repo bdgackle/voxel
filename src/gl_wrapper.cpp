@@ -103,7 +103,7 @@ void vbo::bind()
     glBindBuffer(GL_ARRAY_BUFFER, m_handle);
 }
 
-void vbo::load(GLvoid *data, GLsizeiptr size)
+void vbo::load(const GLvoid *data, GLsizeiptr size)
 {
     if (data == nullptr) {
         throw buf_null;
@@ -128,7 +128,7 @@ void ebo::bind()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_handle);
 }
 
-void ebo::load(GLvoid * data, GLsizeiptr size)
+void ebo::load(const GLvoid * data, GLsizeiptr size)
 {
     if (data == nullptr) {
         throw buf_null;
@@ -162,7 +162,7 @@ shader::~shader()
     glDeleteShader(m_handle);
 }
 
-void shader::compile(string filename)
+void shader::compile(const string& filename)
 {
     assert(m_handle != 0);
 
@@ -235,7 +235,8 @@ void program::link(GLuint vertex_shader, GLuint fragment_shader)
     }
 }
 
-shader_program::shader_program(string vertex_filename, string fragment_filename) :
+shader_program::shader_program(const string& vertex_filename,
+                               const string& fragment_filename) :
     m_vertex_shader(GL_VERTEX_SHADER),
     m_fragment_shader(GL_FRAGMENT_SHADER)
 {
@@ -254,25 +255,25 @@ GLuint shader_program::handle()
     return m_program.m_handle;
 }
 
-void shader_program::set_uniformi(string name, int value)
+void shader_program::set_uniformi(const string& name, int value)
 {
     int loc = glGetUniformLocation(m_program.handle(), name.c_str());
     glUniform1i(loc, value);
 }
 
-void shader_program::set_uniformf(string name, float value)
+void shader_program::set_uniformf(const string& name, float value)
 {
     int loc = glGetUniformLocation(m_program.handle(), name.c_str());
     glUniform1f(loc, value);
 }
 
-void shader_program::set_uniform4fv(string name, float *value)
+void shader_program::set_uniform4fv(const string& name, const float *value)
 {
     int loc = glGetUniformLocation(m_program.handle(), name.c_str());
     glUniformMatrix4fv(loc, 1, GL_FALSE, value);
 }
 
-image::image(string image_filename)
+image::image(const string& image_filename)
 {
     stbi_set_flip_vertically_on_load(true);
     m_image_data = stbi_load(image_filename.c_str(),
@@ -311,7 +312,7 @@ int image::channels() const
     return m_channels;
 }
 
-texture::texture(string image_filename, bool has_alpha) :
+texture::texture(const string& image_filename, bool has_alpha) :
     m_image(image_filename)
 {
     glGenTextures(1, &m_handle);
@@ -337,7 +338,7 @@ void texture::bind()
     glBindTexture(GL_TEXTURE_2D, m_handle);
 }
 
-string read_shader_source(string filename)
+string read_shader_source(const string& filename)
 {
     ifstream source_file;
     source_file.open(filename);

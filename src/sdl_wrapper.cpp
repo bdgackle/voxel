@@ -124,6 +124,7 @@ wrapper::wrapper(int width, int height) :
     }
 
     glViewport(0, 0,  width, height);
+    glEnable(GL_DEPTH_TEST);
 }
 
 SDL_Window* wrapper::window()
