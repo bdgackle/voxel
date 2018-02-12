@@ -24,33 +24,59 @@ static int s_screen_width = 3200;
 static int s_screen_height = 1800;
 
 static float s_vertices[] = {
-     0.5f,  0.5f, 0.0f,     1.0f, 0.0f, 0.0f,    1.0f, 1.0f,
-     0.5f, -0.5f, 0.0f,     0.0f, 1.0f, 0.0f,    1.0f, 0.0f,
-    -0.5f, -0.5f, 0.0f,     0.0f, 0.0f, 1.0f,    0.0f, 0.0f,
-    -0.5f,  0.5f, 0.0f,     1.0f, 1.0f, 0.0f,    0.0f, 1.0f
-};
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 
-static unsigned int s_indices[] = {
-    0, 1, 3,
-    1, 2, 3
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 };
 
 static void enable_vertex_attrib()
 {
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-}
-
-static void enable_color_attrib()
-{
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
 }
 
 static void enable_texture_attrib()
 {
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 }
 
 static float time()
@@ -59,21 +85,21 @@ static float time()
     return float(ticks) / 1000;
 }
 
-
-
 static float s_trans = 0.2;
+static float s_roll = 0.0;
+static float s_pitch = 0.0;
 
-static void increase_trans()
+static void increase(float *value)
 {
-    if (s_trans <= 0.9) {
-        s_trans += 0.1;
+    if (*value <= 0.9) {
+        *value += 0.1;
     }
 }
 
-static void decrease_trans()
+static void decrease(float *value)
 {
-    if (s_trans >= 0.1) {
-        s_trans -= 0.1;
+    if (*value >= -0.9) {
+        *value -= 0.1;
     }
 }
 
@@ -84,14 +110,11 @@ int main(int argc, char** argv)
 
     gl_wrapper::vao box_vao;
     gl_wrapper::vbo box_vbo;
-    gl_wrapper::ebo box_ebo;
 
     box_vao.bind();
     box_vbo.load(s_vertices, sizeof(s_vertices));
-    box_ebo.load(s_indices, sizeof(s_indices));
 
     enable_vertex_attrib();
-    enable_color_attrib();
     enable_texture_attrib();
 
     gl_wrapper::shader_program program("vertex.glsl", "fragment.glsl");
@@ -113,6 +136,8 @@ int main(int argc, char** argv)
     glm::mat4 projection(1.0f);
     projection = glm::perspective(glm::radians(45.0f), (float)s_screen_width / (float)s_screen_height, 0.1f, 100.0f);
 
+    glEnable(GL_DEPTH_TEST);
+
     bool quit = false;
     while (!quit) {
         SDL_Event e;
@@ -130,24 +155,36 @@ int main(int argc, char** argv)
 
                 case SDL_KEYDOWN:
                     switch (e.key.keysym.sym) {
-                        case SDLK_j:
-                            increase_trans();
-                            program.set_uniformf("trans", s_trans);
+                        case SDLK_s:
+                            increase(&s_pitch);
                             break;
-                        case SDLK_k:
-                            decrease_trans();
-                            program.set_uniformf("trans", s_trans);
+                        case SDLK_w:
+                            decrease(&s_pitch);
+                            break;
+                        case SDLK_d:
+                            increase(&s_roll);
+                            break;
+                        case SDLK_a:
+                            decrease(&s_roll);
+                            break;
+                        case SDLK_j:
+                            s_roll = 0;
+                            s_pitch = 0;
                             break;
                     }
             }
         }
 
+        program.use();
+        box_vao.bind();
+
+        model = glm::rotate(model, (float)(s_pitch * time() * 0.001), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, (float)(s_roll * time() * 0.001), glm::vec3(0.0f, 1.0f, 0.0f));
         program.set_uniform4fv("model", glm::value_ptr(model));
         program.set_uniform4fv("view", glm::value_ptr(view));
         program.set_uniform4fv("projection", glm::value_ptr(projection));
 
         gl_wrapper::clear_screen();
-        program.use();
 
         glActiveTexture(GL_TEXTURE0);
         texture0.bind();
@@ -155,9 +192,7 @@ int main(int argc, char** argv)
         glActiveTexture(GL_TEXTURE1);
         texture1.bind();
 
-        box_vao.bind();
-
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
         SDL_GL_SwapWindow(window);
     }
 
