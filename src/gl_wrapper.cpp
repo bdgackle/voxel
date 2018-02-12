@@ -254,7 +254,7 @@ GLuint shader_program::handle()
     return m_program.m_handle;
 }
 
-void shader_program::set_uniform(string name, int value)
+void shader_program::set_uniformi(string name, int value)
 {
     int loc = glGetUniformLocation(m_program.handle(), name.c_str());
     glUniform1i(loc, value);
@@ -266,8 +266,15 @@ void shader_program::set_uniformf(string name, float value)
     glUniform1f(loc, value);
 }
 
+void shader_program::set_uniform4fv(string name, float *value)
+{
+    int loc = glGetUniformLocation(m_program.handle(), name.c_str());
+    glUniformMatrix4fv(loc, 1, GL_FALSE, value);
+}
+
 image::image(string image_filename)
 {
+    stbi_set_flip_vertically_on_load(true);
     m_image_data = stbi_load(image_filename.c_str(),
                              &m_width,
                              &m_height,
