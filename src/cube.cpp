@@ -26,8 +26,7 @@ static void enable_texture_attrib()
 
 cube::cube() :
     m_shader_program(m_vertex_shader_filename, m_fragment_shader_filename),
-    m_texture(m_texture_filename, false),
-    m_transform(1.0f)
+    m_texture(m_texture_filename, false)
 {
     m_vao.bind();
     m_vbo.bind();
@@ -41,21 +40,22 @@ cube::cube() :
     m_shader_program.set_uniformi("texture0", 0);
 }
 
-void cube::draw(float x, float y, float z,
-                const glm::mat4& projection,
-                const glm::mat4& view)
+void cube::set_projection(const glm::mat4& projection_mat)
 {
-    m_transform = glm::translate(m_transform, glm::vec3(x, y, z));
+    m_projection = projection_mat;
+    m_shader_program.set_uniform4fv("projection",
+                                    glm::value_ptr(projection_mat));
+}
 
+void cube::draw(const glm::mat4& model, const glm::mat4& view)
+{
     m_vao.bind();
-
+    m_shader_program.use();
     glActiveTexture(GL_TEXTURE0);
     m_texture.bind();
 
-    m_shader_program.use();
-    m_shader_program.set_uniform4fv("model", glm::value_ptr(m_transform));
+    m_shader_program.set_uniform4fv("model", glm::value_ptr(model));
     m_shader_program.set_uniform4fv("view", glm::value_ptr(view));
-    m_shader_program.set_uniform4fv("projection", glm::value_ptr(projection));
 
     glDrawArrays(GL_TRIANGLES, 0, sizeof(m_vertex_data));
 }

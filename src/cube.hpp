@@ -19,16 +19,16 @@ class cube {
  public:
     cube();
 
-    void draw(float x, float y, float z,
-              const glm::mat4& projection,
-              const glm::mat4& view);
+    void set_projection(const glm::mat4& projection_mat);
+
+    void draw(const glm::mat4& model, const glm::mat4& view);
 
  private:
     gl_wrapper::vao m_vao;
     gl_wrapper::vbo m_vbo;
     gl_wrapper::shader_program m_shader_program;
     gl_wrapper::texture m_texture;
-    glm::mat4 m_transform;
+    glm::mat4 m_projection;
 
     static const int m_vertex_count = 36;
     static const float m_vertex_data[m_vertex_count * 5];

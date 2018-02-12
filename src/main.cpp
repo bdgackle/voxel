@@ -24,21 +24,37 @@ using namespace std;
 static int s_screen_width = 3200;
 static int s_screen_height = 1800;
 
+static glm::vec3 positions[] = {
+  glm::vec3( 0.0f,  0.0f,  0.0f),
+  glm::vec3( 2.0f,  5.0f, -15.0f),
+  glm::vec3(-1.5f, -2.2f, -2.5f),
+  glm::vec3(-3.8f, -2.0f, -12.3f),
+  glm::vec3( 2.4f, -0.4f, -3.5f),
+  glm::vec3(-1.7f,  3.0f, -7.5f),
+  glm::vec3( 1.3f, -2.0f, -2.5f),
+  glm::vec3( 1.5f,  2.0f, -2.5f),
+  glm::vec3( 1.5f,  0.2f, -1.5f),
+  glm::vec3(-1.3f,  1.0f, -1.5f)
+};
+
 int main(int argc, char** argv)
 {
     sdl_wrapper::wrapper sdk(s_screen_width, s_screen_height);
     SDL_Window* window = sdk.window();
 
-    cube voxel_cube;
+    glm::vec3 camera_pos(0.0, 0.0f, 3.0f);
+    glm::vec3 camera_front(0.0, 0.0f, -1.0f);
+    glm::vec3 camera_up( 0.0, 1.0f,  0.0f);
+    float camera_speed = 0.05;
+    glm::mat4 view = glm::lookAt(camera_pos, camera_pos + camera_front, camera_up);
 
-
-    glm::mat4 view(1.0f);
     glm::mat4 projection(1.0f);
-
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
     projection = glm::perspective(glm::radians(45.0f),
                                   (float)s_screen_width / (float)s_screen_height,
                                   0.1f, 100.0f);
+
+    cube voxel_cube;
+    voxel_cube.set_projection(projection);
 
     bool quit = false;
     while (!quit) {
@@ -54,12 +70,38 @@ int main(int argc, char** argv)
                         glViewport(0, 0, e.window.data1, e.window.data2);
                     }
                     break;
+
+                case SDL_KEYDOWN:
+                    switch (e.key.keysym.sym) {
+                        case SDLK_w:
+                            camera_pos += camera_speed * camera_front;
+                            break;
+
+                        case SDLK_s:
+                            camera_pos -= camera_speed * camera_front;
+                            break;
+
+                        case SDLK_a:
+                            camera_pos -= glm::normalize(glm::cross(camera_front, camera_up)) * camera_speed;
+                            break;
+
+                        case SDLK_d:
+                            camera_pos += glm::normalize(glm::cross(camera_front, camera_up)) * camera_speed;
+                            break;
+                    }
             }
         }
 
         gl_wrapper::clear_screen();
 
-        voxel_cube.draw(0, 0, 0, projection, view);
+        view = glm::lookAt(camera_pos, camera_pos + camera_front, camera_up);
+
+        for (int i = 0; i < 10; i++) {
+            glm::mat4 model(1.0f);
+            model = glm::translate(model, positions[i]);
+            model = glm::rotate(model, glm::radians(20.0f * i), glm::vec3(1.0f, 0.3f, 0.5f));
+            voxel_cube.draw(model, view);
+        }
 
         SDL_GL_SwapWindow(window);
     }
