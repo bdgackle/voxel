@@ -104,6 +104,15 @@ int main(int argc, char** argv)
     program.set_uniformi("texture1", 1);
     program.set_uniformf("trans", (float)0.2);
 
+    glm::mat4 model(1.0f);
+    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+    glm::mat4 view(1.0f);
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+    glm::mat4 projection(1.0f);
+    projection = glm::perspective(glm::radians(45.0f), (float)s_screen_width / (float)s_screen_height, 0.1f, 100.0f);
+
     bool quit = false;
     while (!quit) {
         SDL_Event e;
@@ -133,13 +142,9 @@ int main(int argc, char** argv)
             }
         }
 
-        glm::mat4 trans(1.0f);
-        trans = glm::rotate(trans, time(), glm::vec3(0.0, 1.0, 0.0));
-        trans = glm::rotate(trans, (float)(time() * 0.5), glm::vec3(1.0, 0.0, 0.0));
-        trans = glm::rotate(trans, (float)(time() * 0.3), glm::vec3(0.0, 0.0, 1.0));
-        trans = glm::translate(trans, glm::vec3(0.5, -0.5, 0.0));
-        trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
-        program.set_uniform4fv("transform", glm::value_ptr(trans));
+        program.set_uniform4fv("model", glm::value_ptr(model));
+        program.set_uniform4fv("view", glm::value_ptr(view));
+        program.set_uniform4fv("projection", glm::value_ptr(projection));
 
         gl_wrapper::clear_screen();
         program.use();
