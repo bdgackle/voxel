@@ -43,6 +43,17 @@ int main(int argc, char** argv)
     float total_time = 0;
     bool quit = false;
     uint32_t last_frame = SDL_GetTicks();
+
+    glm::mat4 model_vectors[100][20][20];
+    for (int i = 0; i < 100; i++) {
+        for (int j = 0; j < 20; j++) {
+            for (int k = 0; k < 20; k++) {
+                glm::mat4 model(1.0f);
+                model_vectors[i][j][k] = glm::translate(model, glm::vec3((float)i, (float)j, (float)k));
+            }
+        }
+    }
+
     while (!quit) {
         uint32_t current_frame = SDL_GetTicks();
         float delta = current_frame - last_frame;
@@ -81,9 +92,7 @@ int main(int argc, char** argv)
         for (int i = 0; i < 100; i++) {
             for (int j = 0; j < 20; j++) {
                 for (int k = 0; k < 20; k++) {
-                    glm::mat4 model(1.0f);
-                    model = glm::translate(model, glm::vec3((float)i, (float)j, (float)k));
-                    voxel_cube.draw(model, cam.view());
+                    voxel_cube.draw(model_vectors[i][j][k], cam.view());
                 }
             }
         }
