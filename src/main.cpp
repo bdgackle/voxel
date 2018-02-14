@@ -22,21 +22,8 @@
 using namespace std;
 
 //Screen dimension constants
-static int s_screen_width = 1920;
-static int s_screen_height = 1080;
-
-static glm::vec3 positions[] = {
-  glm::vec3( 0.0f,  0.0f,  0.0f),
-  glm::vec3( 2.0f,  5.0f, -15.0f),
-  glm::vec3(-1.5f, -2.2f, -2.5f),
-  glm::vec3(-3.8f, -2.0f, -12.3f),
-  glm::vec3( 2.4f, -0.4f, -3.5f),
-  glm::vec3(-1.7f,  3.0f, -7.5f),
-  glm::vec3( 1.3f, -2.0f, -2.5f),
-  glm::vec3( 1.5f,  2.0f, -2.5f),
-  glm::vec3( 1.5f,  0.2f, -1.5f),
-  glm::vec3(-1.3f,  1.0f, -1.5f)
-};
+static int s_screen_width = 640;
+static int s_screen_height = 480;
 
 int main(int argc, char** argv)
 {
@@ -52,6 +39,8 @@ int main(int argc, char** argv)
 
     voxel_cube.set_projection(proj);
 
+    uint32_t frames = 0;
+    float total_time = 0;
     bool quit = false;
     uint32_t last_frame = SDL_GetTicks();
     while (!quit) {
@@ -89,11 +78,25 @@ int main(int argc, char** argv)
 
         gl_wrapper::clear_screen();
 
-        for (int i = 0; i < 10; i++) {
-            glm::mat4 model(1.0f);
-            model = glm::translate(model, positions[i]);
-            model = glm::rotate(model, glm::radians(20.0f * i), glm::vec3(1.0f, 0.3f, 0.5f));
-            voxel_cube.draw(model, cam.view());
+        for (int i = 0; i < 100; i++) {
+            for (int j = 0; j < 20; j++) {
+                for (int k = 0; k < 20; k++) {
+                    glm::mat4 model(1.0f);
+                    model = glm::translate(model, glm::vec3((float)i, (float)j, (float)k));
+                    voxel_cube.draw(model, cam.view());
+                }
+            }
+        }
+
+        // Hack in an FPS counter
+        frames++;
+        total_time += delta;
+        if (frames >= 100) {
+            float frame_time = (float)total_time / (float)frames;
+            printf("100 frames in %.2f ms.\n", total_time);
+            printf("%.2f fps\n\n", 1000.0f / frame_time);
+            frames = 0;
+            total_time = 0;
         }
 
         SDL_GL_SwapWindow(window);
