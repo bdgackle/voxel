@@ -22,8 +22,8 @@
 using namespace std;
 
 //Screen dimension constants
-static int s_screen_width = 3200;
-static int s_screen_height = 1800;
+static int s_screen_width = 1920;
+static int s_screen_height = 1080;
 
 static glm::vec3 positions[] = {
   glm::vec3( 0.0f,  0.0f,  0.0f),
